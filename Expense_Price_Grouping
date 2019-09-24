@@ -1,0 +1,51 @@
+function myFunction() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getActiveSheet()
+  //replace the last row number here of the google sheet here
+  row_num = 30
+  var range = sheet.getRange(2,2,row_num, 9)//9 columns- to extract item_name, pricing,person1, person2.....
+  var values = range.getValues()
+  var d={}
+  for(i = 0 ; i<row_num-1; i++){
+    var key = ""
+    //have ur indexes for retrieving item and pricing
+    var item = values[i][0]
+    var price = values[i][3]
+    
+    //grouping - based on initials of each person in the shared apt
+    if(values[i][4]==1.0)
+      key+="PV-"
+    if(values[i][5]==1.0)
+      key+="SK-"
+    if(values[i][6]==1.0)
+      key+="TD-"
+    if(values[i][7]==1.0)
+      key+="VB-"
+     if(values[i][8]==1.0)
+      key+="VS-"
+      
+      if(key.length>0){
+      if(key in d){
+      d[key]['share'] = d[key]['share'] + (price/(key.split("-").length-1))
+      d[key]['items'].push(item)
+      }
+    else{
+      d[key] = {}
+      d[key]['share'] = (price/(key.split("-").length-1))
+      d[key]['items'] = [item]
+      }
+      }
+    
+  }
+  //dump in sheet - appends at the end of filled rows
+    for(var k in d){
+    sheet.appendRow([k.substring(0,k.length-1),d[k]['share']])
+     for(var i=0; i<d[k]['items'].length; i++){
+      sheet.appendRow([d[k]['items'][i]])
+    }
+  
+  }
+  Logger.log(d)
+ 
+}
+
